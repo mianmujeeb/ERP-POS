@@ -1,0 +1,67 @@
+{% extends 'base.html' %} {% load static %} {% load crispy_forms_tags %}
+
+{% block title %} Consolidates of {{year}} {% endblock title %}
+
+
+{% block body %}
+
+{% for message in messages %}
+<div class="alert alert-{{message.tags}} mb-3" role="alert" style="border-radius: 50px">
+    <strong>{{message}}</strong>
+</div>
+{% endfor %}
+
+<div class="card-header mb-3">
+    <div class="row">
+        <div class="col-md-10 col-sm-12">
+            <h3>Consolidates of {{year}} </h3>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="card">
+            <div class="card-body">
+
+                {% if list|length %}
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="thead-inverse">
+                            <tr>
+                                <th>#</th>
+                                <th width="70%">Store</th>
+                                <th class="text-center">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            {% for i in list %}
+                            <tr onclick="window.location='#';">
+                                <td>{{forloop.counter}}</td>
+                                <td>{{i}}</td>
+                                <td class="text-center">
+                                    <a href="#" class="text-primary update-button" data-toggel="modal"
+                                        data-target="#viewConsolidateDetailModal"><i class="fa fa-eye"
+                                            aria-hidden="true"></i></a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% else %}
+
+                <div class="card-header text-center">
+                    <img src="{% static 'images/no_data.png' %}" alt="No data" height="350">
+                </div>
+
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock body %}

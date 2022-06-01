@@ -1,0 +1,141 @@
+{% extends 'base.html' %} {% load static %}
+
+{% block title %} Stores {% endblock title %}
+
+
+{% block body %}
+
+{% for message in messages %}
+<div class="alert alert-{{message.tags}} mb-3" role="alert" style="border-radius: 50px">
+    <strong>{{message}}</strong>
+</div>
+{% endfor %}
+
+<div class="card-header mb-3">
+    <div class="row">
+        <div class="col-md-10 col-sm-12">
+            <h3>Stores</h3>
+        </div>
+        <div class="col-md-2">
+            <a href="{% url 'analytics:add-store' %}" class="btn btn-primary btn-block mt-1"><i
+                    class="fa fa-plus-circle"></i>&nbsp
+                Add Store</a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="card">
+            <div class="card-body">
+                <div class="card-header mb-2">
+                    <div class="row mt-2">
+                        <div class="col-md-7"></div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Search...">
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <button class="btn btn-outline-primary btn-block"><i class="fa fa-search"></i></button>
+                        </div>
+                    </div>
+
+                </div>
+
+                {% if stores|length %}
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="thead-inverse">
+                            <tr>
+                                <th>#</th>
+                                <th width="50%">Name</th>
+                                <th>Manager</th>
+                                <th>Zone</th>
+                                <th>City</th>
+                                <th>Country</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            {% for i in stores %}
+                            <tr>
+                                <td>{{forloop.counter}}</td>
+                                <td>{{i.name | title}}</td>
+                                <td>{{i.manager}}</td>
+                                <td>{{i.zone}}</td>
+                                <td>{{i.city | title}}</td>
+                                <td>{{i.country}}</td>
+                                <td class="text-center">
+                                    <a href="{% url 'analytics:update-store' i.id %}"
+                                        class="text-primary update-button"><i
+                                            class="fa fa-pencil-square-o mr-1"></i></a>
+
+                                    <a role="button" class="text-danger delete-button" data-id="{{i.id}}"
+                                        data-name="{{i.name | title}}" data-toggle="modal"
+                                        data-target="#deleteManagerModal"><i class="fa fa-trash"></i></a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% else %}
+
+                <div class="card-header text-center">
+                    <img src="{% static 'images/no_data.png' %}" alt="No data" height="350">
+                </div>
+
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- delete manager modal -->
+<div id="deleteManagerModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="deleteManagerModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="deleteManagerModalLabel">Delete Store</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="manager_id__delete" id="manager_id__delete">
+                <div class="card-body">
+                    <h4>Do you want to <span class="text-danger">delete </span><span class="text-danger"
+                            id="name__delete"></span></h4>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light waves-effect" data-dismiss="modal">Close</button>
+                    <a href="" class="btn btn-danger waves-effect waves-light" name="deleteManager"
+                        id="delete-link">Delete</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $('.delete-button').click(function () {
+        var id = $(this).data('id');
+        var name = $(this).data('name');
+        var href = "/store/delete/" + id;
+
+        console.log(id, name)
+
+        $('#manager_id__delete').val(id);
+        $('#name__delete').html(name);
+        $('#delete-link').attr('href', href);
+    });
+</script>
+
+{% endblock body %}

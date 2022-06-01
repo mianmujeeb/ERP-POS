@@ -1,0 +1,150 @@
+{% extends 'base.html' %} {% load static %} {% load crispy_forms_tags %} {% load custom_tags %} {% load humanize %}
+
+{% block title %} Periodically Consolidate Report {% endblock title %}
+
+
+{% block body %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
+{% for message in messages %}
+<div class="alert alert-{{message.tags}} mb-3" role="alert" style="border-radius: 50px">
+    <strong>{{message}}</strong>
+</div>
+{% endfor %}
+
+<div class="card-header mb-3">
+    <div class="row">
+        <div class="col-md-10 col-sm-12">
+            <h3>Periodically Consolidate Report</h3>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="card">
+            <div class="card-body">
+                <div class="card-header mb-2">
+                    <form type="GET">
+                        <div class="row mt-2">
+                            <div class="col-md-9"></div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+
+                                    {% if year %}
+                                    <input type="text" name="year" class="form-control" placeholder="Year..."
+                                        value="{{year}}" required>
+                                    {% else %}
+                                    <input type="text" name="year" class="form-control" placeholder="Year..." required>
+                                    {% endif %}
+
+
+                                </div>
+
+                            </div>
+                            <div class="col-md-1">
+                                <button class="btn btn-outline-primary btn-block"><i class="fa fa-search"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                {% if year %}
+
+                <div class="card-header mb-3 d-flex justify-content-between">
+                    <h4 class="text-center">Periodically Consolidate Report of {{year}}</h4>
+                    <button class="btn btn-primary" id="export" onclick="export_data()"><i class="fa fa-download"></i>
+                        Export to
+                        Spreadsheet</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover" id="table">
+                        <thead class="thead-inverse">
+                            <tr>
+
+                                <th width="25%">Start Date</th>
+
+                                {% for i in periods %}
+                                <th>{{i.start_week.start_date|date:"m/d/y"}}</th>
+                                {% endfor %}
+
+                            </tr>
+
+                            <tr>
+
+                                <th width="25%">End Date</th>
+
+                                {% for i in periods %}
+                                <th>{{i.end_week.end_date|date:"m/d/y"}}</th>
+                                {% endfor %}
+
+                            </tr>
+                            <tr>
+
+                                <th width="25%">Week</th>
+
+                                {% for i in periods %}
+                                <th>P{{forloop.counter}}</th> {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            {% for i in sheet_heads %}
+                            <tr>
+                                <td width="25%"><strong>{{i}}</strong></td>
+                                {% for j in periods %}
+
+                                <td>
+
+                                    {% with year as y and store as store %}
+
+                                    {% periodically_consolidate_report y i.id j.start_week.start_date j.end_week.end_date as k %}
+
+
+                                    {% if k %}
+                                    {{k|floatformat:"2"}}
+                                    {% else %}
+                                    --
+                                    {% endif %}
+                                    {% endwith %}
+
+
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% else %}
+
+                <div class="card-header text-center">
+                    <img src="{% static 'images/no_data.png' %}" alt="No data" height="350">
+                </div>
+
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function export_data() {
+        let data = document.getElementById('data');
+        var fp = XLSX.utils.table_to_book(data, {
+            sheet: 'sheet 1'
+        });
+        XLSX.write(fp, {
+            bookType: 'xlsx',
+            type: 'base64'
+        });
+        XLSX.writeFile(fp, 'test.xlsx');
+    }
+</script>
+
+
+{% endblock body %}

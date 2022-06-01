@@ -1,0 +1,135 @@
+{% extends 'base.html' %} {% load static %} {% load crispy_forms_tags %}
+
+{% block title %} Add Budget {% endblock title %}
+
+
+{% block body %}
+
+
+
+
+{% for message in messages %}
+<div class="alert alert-{{message.tags}} mb-3" role="alert" style="border-radius: 50px">
+    <strong>{{message}}</strong>
+</div>
+{% endfor %}
+
+<div class="card-header mb-3">
+    <div class="row">
+        <div class="col-md-10 col-sm-12">
+            <h3>Add Budget</h3>
+        </div>
+    </div>
+</div>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="row">
+        <div class="col-md-9">
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="">Year*</label>
+                                <select class="form-control" name="year" id="id_year" required>
+                                    <option value="">-------</option>
+                                    {% for i in years %}
+                                    <option value="{{i}}">{{i}}</option>
+                                    {% endfor %}
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="">Weeks*</label>
+                                <select class="form-control" name="week" id="id_week" required multiple size="15">
+                                    {% for i in week %}
+                                    <option value="{{i.id}}">{{i}}</option>
+                                    {% endfor %}
+                                </select>
+                                <small id="helpId" class="text-muted">Choose an year to get relevant weeks. You can
+                                    select mulitple weeks from here</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="">Stores*</label>
+                                <select class="form-control" name="store" id="id_store" required multiple size="15">
+                                    {% for i in stores %}
+                                    <option value="{{i.id}}">{{i}}</option>
+                                    {% endfor %}
+                                </select>
+                                <small id="helpId" class="text-muted">You can select mulitple stores from here</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        {% for i in sheet_heads %}
+                        <div class="col-md-6">
+                            <div class="form-group">
+
+                                {% if forloop.counter == 1 %}
+                                <label for="">Sheet Head</label>
+                                {% endif %}
+
+                                <input type="text" name="sheet_head" id="id_sheet_head" class="form-control"
+                                    value="{{i}}" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+
+                                {% if forloop.counter == 1 %}
+                                <label for="">Budget</label>
+                                {% endif %}
+
+                                <input type="number" name="budget" id="id_budget" class="form-control" value="0"
+                                    required>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-body">
+                <button type="submit" class="btn btn-outline-primary btn-block">Save</button>
+                <a href="{% url 'analytics:managers' %}" class="btn btn-secondary btn-block">Cancel</a>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<script>
+    $('#id_year').on('change', function () {
+        console.log('Year changed')
+
+        var url = "{% url 'analytics:weeks-filter-ajax' %}";
+        var year = $('#id_year').val()
+
+        data = {
+            year: year
+        }
+
+        $.ajax({
+            url: url,
+            data: data,
+
+            success: function (data) {
+                console.log(data)
+                $('#id_week').html(data)
+            }
+        })
+
+    })
+</script>
+
+{% endblock body %}

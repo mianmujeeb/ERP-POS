@@ -1,0 +1,208 @@
+{% extends 'base.html' %} {% load static %}
+
+{% block title %} Sheet Heads {% endblock title %}
+
+
+{% block body %}
+
+{% for message in messages %}
+<div class="alert alert-{{message.tags}} mb-3" role="alert" style="border-radius: 50px">
+    <strong>{{message}}</strong>
+</div>
+{% endfor %}
+
+<div class="card-header mb-3">
+    <div class="row">
+        <div class="col-md-10 col-sm-12">
+            <h3>Sheet Heads</h3>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary btn-block mt-1" data-toggle="modal" data-target="#addSheetHeadModal"><i
+                    class="fa fa-plus-circle"></i>&nbsp
+                Add Sheet Head</button>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="card">
+            <div class="card-body">
+
+                {% if heads|length %}
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="thead-inverse">
+                            <tr>
+                                <th>#</th>
+                                <th width="80%">Name</th>
+                                <th class="text-center">Order</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            {% for i in heads %}
+                            <tr>
+                                <td>{{forloop.counter}}</td>
+                                <td>{{i.name | title}}</td>
+                                <td class="text-center">{{i.order}}</td>
+                                <td class="text-center">
+                                    <a role="button" class="text-primary update-button" data-id="{{i.id}}"
+                                        data-name="{{i.name}}" data-order="{{i.order}}" data-toggle="modal"
+                                        data-target="#updateIncomeHeadModal"><i class="fa fa-pencil-square-o mr-1"
+                                            aria-hidden="true"></i></a>
+
+                                    <a role="button" class="text-danger delete-button" data-id="{{i.id}}"
+                                        data-name="{{i.name}}" data-toggle="modal"
+                                        data-target="#deleteIncomeHeadModal"><i class="fa fa-trash"
+                                            aria-hidden="true"></i></a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% else %}
+
+                <div class="card-header text-center">
+                    <img src="{% static 'images/no_data.png' %}" alt="No data" height="350">
+                </div>
+
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- add income head modal -->
+<div id="addSheetHeadModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addSheetHeadModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="addSheetHeadModalLabel">Add Sheet Head</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        <label for="">Name</label>
+                        <input type="text" name="name" id="name" class="form-control" placeholder=""
+                            aria-describedby="helpId">
+                        <small id="helpId" class="text-muted">Please specify the name of income head e.g Sales, Royality
+                            etc.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Order:*</label>
+                        <input type="text" name="order" id="order" class="form-control" placeholder=""
+                            aria-describedby="helpId">
+                        <small id="helpId" class="text-muted">Please specify the order of header according
+                            to sheet</small>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light waves-effect" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary waves-effect waves-light"
+                        name="addSheetHead">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- update income head modal -->
+<div id="updateIncomeHeadModal" class="modal fade" tabindex="-1" role="dialog"
+    aria-labelledby="updateIncomeHeadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="updateIncomeHeadModalLabel">Update Income Head</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <input type="hidden" name="sheet_head_id__update" id="sheet_head_id__update">
+
+                    <div class="form-group">
+                        <label for="">Name</label>
+                        <input type="text" name="sheet_head_name__update" id="sheet_head_name__update"
+                            class="form-control" placeholder="" aria-describedby="helpId">
+                        <small id="helpId" class="text-muted">Please specify the name of head.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Order</label>
+                        <input type="text" name="sheet_head_order__update" id="sheet_head_order__update"
+                            class="form-control" placeholder="" aria-describedby="helpId">
+                        <small id="helpId" class="text-muted">Please specify the order of head.</small>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light waves-effect" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary waves-effect waves-light"
+                        name="updateSheetHead">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- delete income head modal -->
+<div id="deleteIncomeHeadModal" class="modal fade" tabindex="-1" role="dialog"
+    aria-labelledby="deleteIncomeHeadModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="deleteIncomeHeadModalLabel">Delete Sheet Head</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="sheet_head_id__delete" id="sheet_head_id__delete">
+                <div class="card-body">
+                    <h4>Do you want to <span class="text-danger">delete </span><span class="text-danger"
+                            id="sheet_head_name__delete"></span></h4>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light waves-effect" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger waves-effect waves-light"
+                        name="deleteSheetHead">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $('.update-button').click(function () {
+        var id = $(this).data('id');
+        var name = $(this).data('name');
+        var order = $(this).data('order');
+
+        $('#sheet_head_id__update').val(id);
+        $('#sheet_head_name__update').val(name);
+        $('#sheet_head_order__update').val(order);
+    });
+
+    $('.delete-button').click(function () {
+        var id = $(this).data('id');
+        var name = $(this).data('name');
+
+        $('#sheet_head_id__delete').val(id);
+        $('#sheet_head_name__delete').html(name);
+    });
+</script>
+
+{% endblock body %}

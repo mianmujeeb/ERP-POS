@@ -1,0 +1,154 @@
+{% extends 'base.html' %} {% load static %} {% load crispy_forms_tags %} {% load custom_tags %} {% load humanize %}
+
+{% block title %} Yearly Consolidate Report {% endblock title %}
+
+
+{% block body %}
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
+{% for message in messages %}
+<div class="alert alert-{{message.tags}} mb-3" role="alert" style="border-radius: 50px">
+    <strong>{{message}}</strong>
+</div>
+{% endfor %}
+
+<div class="card-header mb-3">
+    <div class="row">
+        <div class="col-md-10 col-sm-12">
+            <h3>Yearly Consolidate Report</h3>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="card">
+            <div class="card-body">
+                <div class="card-header mb-2">
+                    <form type="GET">
+                        <div class="row mt-2">
+                            <div class="col-md-9"></div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+
+                                    {% if year %}
+                                    <input type="text" name="year" class="form-control" placeholder="Search..."
+                                        value="{{year}}">
+                                    {% else %}
+                                    <input type="text" name="year" class="form-control" placeholder="Search...">
+                                    {% endif %}
+
+
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <button class="btn btn-outline-primary btn-block"><i class="fa fa-search"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                {% if year|length %}
+
+                <div class="card-header mb-3 d-flex justify-content-between">
+                    <h4 class="text-center">Yearly Consolidate Report of {{year}}</h4>
+                    <button class="btn btn-primary" id="export" onclick="export_data()"><i class="fa fa-download"></i>
+                        Export to
+                        Spreadsheet</button>
+                </div>
+
+
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm" id="table">
+                        <thead class="thead-inverse bg-light fixed">
+                            <tr>
+                                <th width="30%">Particulars</th>
+
+                                {% for i in stores %}
+                                <th>{{i}}</th>
+                                {% endfor %}
+
+                                <th>Consolidate</th>
+
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% with year as y %}
+
+                            {% for i in sheet_heads %}
+                            <tr>
+                                <td width="30%"><strong>{{i}}</strong></td>
+                                {% for j in stores %}
+
+                                {% yearly_consolidate_report y j.id i.id as k %}
+
+                                {% if k %}
+
+                                {% if k < 0 %}
+                                <td class="text-danger">
+                                    {{k|floatformat:"2"}}
+                                </td>
+                                {% else %}
+                                <td>
+                                    {{k|floatformat:"2"}}
+                                </td>
+                                {% endif %}
+
+                                {% else %}
+                                <td>--</td>
+                                {% endif %}
+                                {% endfor %}
+
+                                {% yearly_consolidate_total_by_sheet_head y i.id as total_by_sheet_head %}
+                                {% if total_by_sheet_head <= 0 %}
+                                <td class="text-danger">{{total_by_sheet_head|floatformat:"2"}}</td>
+                                {% else %}
+                                <td>{{total_by_sheet_head|floatformat:"2"}}</td>
+                                {% endif %}
+
+
+                            </tr>
+                            {% endfor %}
+
+
+                            <tr>
+                                <td><strong>Consolidate</strong></td>
+
+
+                                {% for i in stores %}
+                                {% yearly_consolidate_report_by_store y i.id as total_by_store %}
+
+                                {% if total_by_store <= 0 %}
+                                <td class="text-danger">{{total_by_store|floatformat:"2"}}</td>
+                                {% else %}
+                                <td>{{total_by_store|floatformat:"2"}}</td>
+                                {% endif %}
+
+
+                                {% endfor %}
+                            </tr>
+
+                            {% endwith %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% else %}
+
+                <div class="card-header text-center">
+                    <img src="{% static 'images/no_data.png' %}" alt="No data" height="350">
+                </div>
+
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock body %}
